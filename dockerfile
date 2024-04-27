@@ -10,26 +10,17 @@ RUN pacman --noconfirm -Syu && \
     git \
     npm \
     wget \
-    sudo \
-    nodejs && \
+    nodejs \
+    sudo && \
     pacman --noconfirm -Scc
 
+ENV ZVM_URL=https://github.com/tristanisham/zvm/releases/download/v0.6.7/zvm-linux-amd64.tar
+RUN mkdir ~/zvm && \
+    wget -c $ZVM_URL -O ~/zvm.tar && \
+    tar -xf ~/zvm.tar -C /usr/bin/ && \
+    rm ~/zvm.tar
+
 RUN npm install -g grunt-cli
-
-ENV ZIG_URL=https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
-RUN mkdir ~/zig && \
-    wget -c $ZIG_URL -O - | tar -xJ -C ~/zig && \
-    cp -r ~/zig/*/lib /usr/lib/zig && cp ~/zig/*/zig /usr/bin/ && \
-    rm -r ~/zig
-
-RUN cd ~ && \
-    git clone https://github.com/zigtools/zls && \
-    cd zls && \
-    git checkout 0.11.0 && \
-    zig build -Doptimize=ReleaseSafe && \
-    cp ./zig-out/bin/zls /usr/bin/ && \
-    cd ~ && \
-    rm -r ~/zls
 
 # Setup default user
 ENV USER=dev
@@ -40,3 +31,11 @@ RUN useradd --create-home -s /bin/bash -m $USER && \
 
 WORKDIR /home/$USER
 USER $USER
+
+# ZLS V0.12 not yet available so install master and copy into 0.12.0 directory.
+RUN zvm install -D=zls master && \
+    zvm install 0.12.0 && \
+    cp ~/.zvm/master/zls ~/.zvm/0.12.0/zls && \
+    zvm use 0.12.0
+
+ENV PATH="/home/$USER/.zvm/bin:$PATH"

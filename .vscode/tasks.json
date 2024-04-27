@@ -16,6 +16,19 @@
             "group": "build"
         },
         {
+            "label": "build clean",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "build",
+                "--no-cache",
+                "-t",
+                "ghcr.io/sullyy9/zig-screeps-container:latest",
+                "./"
+            ],
+            "group": "build"
+        },
+        {
             "label": "push",
             "type": "shell",
             "command": "docker",
