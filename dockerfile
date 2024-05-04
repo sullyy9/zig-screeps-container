@@ -1,11 +1,9 @@
 FROM archlinux:latest
 
-RUN pacman-key --init
-RUN pacman --noconfirm -Sy
-RUN pacman --noconfirm -S archlinux-keyring 
-
-# Install basic programs and custom glibc
-RUN pacman --noconfirm -Syu && \
+RUN pacman-key --init && \
+    pacman --noconfirm -Sy && \
+    pacman --noconfirm -S archlinux-keyring && \
+    pacman --noconfirm -Syu && \
     pacman --noconfirm -S \
     git \
     npm \
@@ -32,10 +30,10 @@ RUN useradd --create-home -s /bin/bash -m $USER && \
 WORKDIR /home/$USER
 USER $USER
 
-# ZLS V0.12 not yet available so install master and copy into 0.12.0 directory.
-RUN zvm install -D=zls master && \
-    zvm install 0.12.0 && \
-    cp ~/.zvm/master/zls ~/.zvm/0.12.0/zls && \
-    zvm use 0.12.0
-
 ENV PATH="/home/$USER/.zvm/bin:$PATH"
+
+# ZLS V0.12 not yet available so install master and copy into 0.12.0 directory.
+RUN zvm install -D=zls 0.12.0 && \
+    zvm use 0.12.0 && \
+    # Zig fmt needs to be built the first time it's run. Do that here.
+    zig fmt --help
